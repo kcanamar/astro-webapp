@@ -1,0 +1,76 @@
+---
+import { AddToCart } from "../components/add-to-cart.tsx"
+// Will out put any currency as USD
+function formatCurrancy(amount: number) {
+    return new Intl.NumberFormat('en-Us', {
+        currency: 'usd',
+        style: 'currency',
+    }).format(amount)
+}
+
+const result = await fetch("https://astro-frontend-masters-api.netlify.app/api/products")
+
+if (!result.ok) {
+    console.log(result)
+}
+
+type ShopItem = {
+	id: number;
+	title: string;
+	description: string;
+	image: {
+		src: string;
+		alt: string;
+	};
+	price: number;
+};
+
+const shopItems: ShopItem[] = await result.json();
+---
+
+<section class="shop-items">
+    {
+        shopItems.map((item) => {
+            return (
+                <div class="item">
+                    <img src={item.image.src} alt={item.image.alt}>
+                    <h2>{item.title}</h2>
+                    <p>{item.description}</p>
+                    <p class="price">{formatCurrancy(item.price)}</p>
+                    <AddToCart item={item} client:only="react" />
+                </div>
+            )
+        })
+    }
+</section>
+
+<style>
+    .shop-items {
+        display: flex;
+        gap: 3rem 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin: 2rem 0;
+    }
+
+    .item {
+        width: 250px;
+    }
+
+    .item img {
+        aspect-ratio: 1;
+        border-radius: 0.125rem;
+        display: block;
+        width: 100%;
+    }
+
+    .item h2 {
+        font-size: 1.125rem;
+        margin: 0.75rem 0 0;
+    }
+
+    .item p {
+        margin: 0.25rem 0 0;
+    }
+
+</style>
